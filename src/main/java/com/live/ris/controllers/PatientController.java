@@ -3,12 +3,16 @@ package com.live.ris.controllers;
 import com.live.ris.entities.Patient;
 import com.live.ris.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/patients")
@@ -55,22 +59,45 @@ public class PatientController {
         model.addAttribute("patient", patient);
         return "patient_register";
     }
-    
+
     @PostMapping("/patients/register")
     public String savePatient(@ModelAttribute("patient") Patient patient) {
         if (patient.getPid() != null) {
             Patient existingPatient = patientService.getPatientById(patient.getPid());
             if (existingPatient != null) {
-                // Preserve fields that shouldn't be changed by the form (e.g., entryDatetime)
                 patient.setEntryDatetime(existingPatient.getEntryDatetime());
             }
         } else {
             patient.setEntryDatetime(LocalDateTime.now());
         }
 
-        patient.setActive(1); // if always active
+        patient.setActive(1);
         patientService.savePatient(patient);
         return "redirect:/patients?success=true";
     }
 
+    @GetMapping("/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchPatientsCombo(@RequestParam String keyword) {
+        List<Patient> patients = patientService.searchPatients(keyword);
+        return patients.stream()
+                .limit(10)
+                .map(p -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("pid", p.getPid());
+                    map.put("pName", p.getPName());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+    @GetMapping("/exam-entry")
+    public String showSearchForm() {
+        return "exam_entry";
+    }
+    @GetMapping("/details/{pid}")
+    @ResponseBody
+    public ResponseEntity<Patient> getPatientDetails(@PathVariable Long pid) {
+        Patient patient = patientService.getPatientById(pid);
+        return patient != null ? ResponseEntity.ok(patient) : ResponseEntity.notFound().build();
+    }
 }
