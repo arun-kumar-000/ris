@@ -5,9 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class RisApplication {
-//test
+//test sxj
 	public static void main(String[] args) {
-		SpringApplication.run(RisApplication.class, args);
+		SpringApplication.run(RisApplication.class, args); 
+		//bsdcfkb djkcbdkb  fgb
 	}
 
 }
