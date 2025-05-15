@@ -1,0 +1,118 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+}
+
+.sidebar {
+    background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
+    color: white;
+    padding-top: 1rem;
+    width: 240px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.sidebar h4 {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar .nav-link {
+    color: #fff;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #fff;
+}
+
+.content {
+    margin-left: 240px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    display: none;
+    width: 160px;
+    z-index: 1050;
+}
+
+.profile-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: #212529;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.profile-dropdown a:hover {
+    background-color: #f8f9fa;
+}
+
+.welcome-card {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1040;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .menu-toggle {
+        display: inline-block;
+    }
+}

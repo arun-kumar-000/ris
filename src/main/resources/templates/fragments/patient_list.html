@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="patientTable">
+        <div class="table-container">
+            <h3 class="mb-3">All Patients</h3>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>DOB</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="patient : ${patients}">
+                            <td th:text="${patient.pid}"></td>
+                            <td th:text="${patient.pName}"></td>
+                            <td th:text="${patient.dob}"></td>
+                            <td th:text="${patient.telephone}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
