@@ -1,8 +1,16 @@
 package com.live.ris.entities;
+
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 
+@Entity
+@Table(name = "investigation_bill_entry")
 public class InvestigationBillEntry {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int invReceiptId;
+
     private String pType;
     private String pOpdIpdId;
     private String pId;
@@ -17,6 +25,7 @@ public class InvestigationBillEntry {
     private String invPaymentMode;
     private String invBookingStatus;
     private String invReportUrl;
+
     private Timestamp invDateTime;
 
     // Getters and Setters

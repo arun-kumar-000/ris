@@ -1,9 +1,16 @@
 package com.live.ris.entities;
 
+import jakarta.persistence.*;
 import java.sql.Timestamp;
 
+@Entity
+@Table(name = "investigation_entry")
 public class InvestigationEntry {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int invId;
+
     private String invName;
     private String invCode;
     private String pType;
@@ -32,6 +39,7 @@ public class InvestigationEntry {
     private String invDocType;
     private String invDocUploaded;
     private String invComment;
+
     private Timestamp invDateTime;
 
     // Getters and Setters
