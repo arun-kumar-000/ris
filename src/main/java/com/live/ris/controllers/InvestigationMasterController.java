@@ -27,8 +27,14 @@ public class InvestigationMasterController {
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("investigation", new InvestigationMaster());
+        model.addAttribute("labNames", service.getAll().stream()
+                .map(InvestigationMaster::getInvLab)
+                .distinct()
+                .sorted()
+                .toList());
         return "investigation_master_form";
     }
+
 
     @PostMapping("/save")
     public String saveInvestigation(@ModelAttribute InvestigationMaster investigation) {

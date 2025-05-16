@@ -90,9 +90,9 @@ public class PatientController {
                 })
                 .collect(Collectors.toList());
     }
-    @GetMapping("/exam-entry")
+    @GetMapping("/investigation_entry")
     public String showSearchForm() {
-        return "exam_entry";
+        return "investigation_entry";
     }
     @GetMapping("/details/{pid}")
     @ResponseBody

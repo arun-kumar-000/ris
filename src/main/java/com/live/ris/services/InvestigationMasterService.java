@@ -11,4 +11,7 @@ public interface InvestigationMasterService {
     Optional<InvestigationMaster> getById(Integer id);
     void deleteById(Integer id);
     List<InvestigationMaster> search(String keyword);
+
+    List<InvestigationMaster> getByLab(String labName);
+
 }
