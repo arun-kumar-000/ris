@@ -2,6 +2,9 @@ package com.live.ris.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.live.ris.entities.InvestigationEntry;
+import com.live.ris.services.InvestigationEntryService;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +17,7 @@ public class InvestigationEntryController {
 
     @GetMapping
     public List<InvestigationEntry> getAll() {
-        return service.getAll();
+        return service.getAll();//test
     }
 
     @GetMapping("/{id}")
