@@ -39,4 +39,16 @@ public class InvestigationMasterServiceImpl implements InvestigationMasterServic
     public List<InvestigationMaster> search(String keyword) {
         return repository.findByInvNameContainingIgnoreCaseOrInvCodeContainingIgnoreCase(keyword, keyword);
     }
+
+	@Override
+	public List<InvestigationMaster> getByLab(String labName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<InvestigationMaster> searchByKeywordAndLab(String keyword, Long labId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -2,6 +2,9 @@ package com.live.ris.controllers;
 
 import com.live.ris.entities.InvestigationMaster;
 import com.live.ris.services.InvestigationMasterService;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +26,17 @@ public class InvestigationMasterController {
         }
         return "investigation_master_list";
     }
+    
+    @GetMapping("/search")
+    @ResponseBody
+    public List<InvestigationMaster> getInvestigations(@RequestParam(value = "keyword", required = false) String keyword) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return service.search(keyword);
+        } else {
+            return service.getAll();
+        }
+    }
+
 
     @GetMapping("/add")
     public String showAddForm(Model model) {

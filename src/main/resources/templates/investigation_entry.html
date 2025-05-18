@@ -2,12 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Investigation Entry</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-5">
-    <h2>Investigation Entry</h2>
+    <h2 class="mb-4">Investigation Entry</h2>
 
     <!-- Patient Search -->
     <div class="mb-3">
@@ -39,26 +38,41 @@
             <label>Sex</label>
             <input type="text" class="form-control" id="sex" readonly>
         </div>
+        <div class="col-md-6 mb-3">
+            <label>Age</label>
+            <input type="text" class="form-control" id="age" readonly placeholder="e.g., 1Y2M3D">
+        </div>
     </div>
 
     <hr>
 
-    <!-- Doctor & Investigation Selection -->
+    <!-- Doctor Name -->
     <div class="mb-3">
         <label>Doctor Name</label>
         <input type="text" id="doctorName" class="form-control" placeholder="Enter Doctor Name">
     </div>
 
+    <!-- Payment Mode -->
     <div class="mb-3">
-        <label>Select Lab</label>
-        <select id="labSelect" class="form-select">
-            <option value="">Select a lab</option>
+        <label>Payment Mode</label>
+        <select id="paymentMode" class="form-select">
+            <option value="">Select Payment Mode</option>
+            <option value="CASH">CASH</option>
+            <option value="ONLINE">ONLINE</option>
         </select>
     </div>
 
+    <!-- Investigation Search -->
     <div class="mb-3">
-        <input type="text" id="invSearch" class="form-control" placeholder="Search Investigations">
-        <select id="invSelect" class="form-select mt-2">
+        <div class="input-group">
+            <input type="text" id="invSearchInput" class="form-control" placeholder="Search Investigations">
+            <button type="button" class="btn btn-secondary" id="searchInvBtn">Search</button>
+        </div>
+    </div>
+
+    <!-- Investigation Dropdown -->
+    <div class="mb-3">
+        <select id="invSelect" class="form-select">
             <option value="">Select an investigation</option>
         </select>
         <button type="button" class="btn btn-primary mt-2" id="addInvestigation">Add Investigation</button>
@@ -67,11 +81,11 @@
     <!-- Investigation Table -->
     <table class="table table-bordered" id="investigationTable">
         <thead>
-            <tr>
-                <th>Investigation Name</th>
-                <th>Charges</th>
-                <th>Action</th>
-            </tr>
+        <tr>
+            <th>Investigation Name</th>
+            <th>Charges</th>
+            <th>Action</th>
+        </tr>
         </thead>
         <tbody></tbody>
     </table>
@@ -79,23 +93,29 @@
     <button class="btn btn-success" id="saveBtn">Save Entry</button>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let selectedInvestigations = [];
 
-    // Load labs on page load
-    $(document).ready(function () {
-        $.get('/investigations/add', function (data) {
-            let options = '<option value="">Select a lab</option>';
-            data.forEach(lab => {
-                options += `<option value="${lab.labId}">${lab.labName}</option>`;
+    function fetchInvestigations(keyword = '') {
+        $.get('/investigations/search', { keyword }, function (data) {
+            let options = '<option value="">Select an investigation</option>';
+            data.forEach(inv => {
+                options += `<option value="${inv.invId}" data-name="${inv.invName}" data-charges="${inv.invCharge}">${inv.invName}</option>`;
             });
-            $('#labSelect').html(options);
+            $('#invSelect').html(options);
         });
+    }
+
+    fetchInvestigations();
+
+    $('#searchInvBtn').on('click', function () {
+        const keyword = $('#invSearchInput').val();
+        fetchInvestigations(keyword);
     });
 
-    // Search patients
     $('#searchInput').on('input', function () {
-        let keyword = $(this).val();
+        const keyword = $(this).val();
         if (keyword.length >= 1) {
             $.get('/patients/search', { keyword }, function (data) {
                 let options = '<option value="">Select a patient</option>';
@@ -107,44 +127,54 @@
         }
     });
 
-    // Show patient details
     $('#patientSelect').on('change', function () {
-        let pid = $(this).val();
+        const pid = $(this).val();
         if (pid) {
             $.get(`/patients/details/${pid}`, function (data) {
-                $('#pName').val(data.pName);
+                $('#pName').val(data.pname);
                 $('#telephone').val(data.telephone);
                 $('#aadhaar').val(data.aadhaar);
                 $('#city').val(data.city);
                 $('#sex').val(data.sex);
+                $('#dob').val(data.dob);
+
+                // Calculate age
+                const ageStr = calculateAge(data.dob);
+                $('#age').val(ageStr);
             });
         }
     });
 
-    // Search investigations based on lab
-    $('#invSearch').on('input', function () {
-        let keyword = $(this).val();
-        let labId = $('#labSelect').val();
-        if (keyword.length >= 1 && labId) {
-            $.get('/investigations/search', { keyword, labId }, function (data) {
-                let options = '<option value="">Select an investigation</option>';
-                data.forEach(i => {
-                    options += `<option value="${i.invId}" data-name="${i.invName}" data-charges="${i.charges}">${i.invName}</option>`;
-                });
-                $('#invSelect').html(options);
-            });
-        }
-    });
+    function calculateAge(dobString) {
+        if (!dobString) return '';
+        const dob = new Date(dobString);
+        const today = new Date();
 
-    // Add investigation
+        let years = today.getFullYear() - dob.getFullYear();
+        let months = today.getMonth() - dob.getMonth();
+        let days = today.getDate() - dob.getDate();
+
+        if (days < 0) {
+            months--;
+            days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        return `${years}Y${months}M${days}D`;
+    }
+
     $('#addInvestigation').on('click', function () {
-        let selectedOption = $('#invSelect option:selected');
-        let invId = selectedOption.val();
-        let invName = selectedOption.data('name');
-        let charges = selectedOption.data('charges');
+        const selectedOption = $('#invSelect option:selected');
+        const invId = selectedOption.val();
+        const invName = selectedOption.data('name');
+        const charges = selectedOption.data('charges');
 
-        if (invId && !selectedInvestigations.some(i => i.invId == invId)) {
+        if (invId && !selectedInvestigations.some(i => i.invId === invId)) {
             selectedInvestigations.push({ invId, invName, charges });
+
             $('#investigationTable tbody').append(`
                 <tr data-id="${invId}">
                     <td>${invName}</td>
@@ -155,38 +185,51 @@
         }
     });
 
-    // Remove investigation
     $('#investigationTable').on('click', '.removeBtn', function () {
         const row = $(this).closest('tr');
         const invId = row.data('id');
-        selectedInvestigations = selectedInvestigations.filter(i => i.invId != invId);
+        selectedInvestigations = selectedInvestigations.filter(i => i.invId !== invId);
         row.remove();
     });
 
-    // Save entry
     $('#saveBtn').on('click', function () {
         const pid = $('#patientSelect').val();
         const doctorName = $('#doctorName').val();
+        const pname = $('#pName').val();
+        const dob = $('#dob').val();
+        const age = $('#age').val();
+        const paymentMode = $('#paymentMode').val();
 
-        if (!pid || !doctorName || selectedInvestigations.length === 0) {
-            alert("Please select a patient, doctor, and at least one investigation.");
+        if (!pid || !doctorName || selectedInvestigations.length === 0 || !paymentMode) {
+            alert("Please select patient, doctor name, payment mode, and investigations.");
             return;
         }
 
         const payload = {
             pid: pid,
+            pname: pname,
             doctorName: doctorName,
-            investigationIds: selectedInvestigations.map(i => i.invId)
+            dob: dob,
+            age: age,
+            paymentMode: paymentMode,
+            investigations: selectedInvestigations
         };
 
+        console.log("Sending payload to backend:");
+        console.log(JSON.stringify(payload, null, 2));
+
         $.ajax({
-            url: '/investigations/entry',
+            url: '/inv_entry/entry',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(payload),
             success: function (res) {
                 alert("Saved successfully. Receipt ID: " + res.receiptId);
                 location.reload();
+            },
+            error: function (err) {
+                console.error("Error saving investigation entry:", err);
+                alert("Failed to save. Check console or backend logs.");
             }
         });
     });

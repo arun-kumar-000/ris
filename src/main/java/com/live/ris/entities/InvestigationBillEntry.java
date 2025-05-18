@@ -9,7 +9,7 @@ public class InvestigationBillEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int invReceiptId;
+    private String invReceiptId;
 
     private String pType;
     private String pOpdIpdId;
@@ -29,8 +29,8 @@ public class InvestigationBillEntry {
     private Timestamp invDateTime;
 
     // Getters and Setters
-    public int getInvReceiptId() { return invReceiptId; }
-    public void setInvReceiptId(int invReceiptId) { this.invReceiptId = invReceiptId; }
+    public String getInvReceiptId() { return invReceiptId; }
+    public void setInvReceiptId(String invReceiptId) { this.invReceiptId = invReceiptId; }
 
     public String getpType() { return pType; }
     public void setpType(String pType) { this.pType = pType; }
@@ -76,4 +76,5 @@ public class InvestigationBillEntry {
 
     public Timestamp getInvDateTime() { return invDateTime; }
     public void setInvDateTime(Timestamp invDateTime) { this.invDateTime = invDateTime; }
+	
 }
