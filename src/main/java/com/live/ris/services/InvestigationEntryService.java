@@ -55,6 +55,8 @@ public class InvestigationEntryService {
         bill.setInvChargesPaid(bill.getInvTotalCharges());
         bill.setInvDateTime(new Timestamp(System.currentTimeMillis()));
         bill.setInvBookingStatus("Pending");
+        bill.setpAge(request.getAge());
+        bill.setpType("OPD");
         bill.setInvEntryUser("system");
 
         billRepo.save(bill);
