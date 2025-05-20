@@ -158,24 +158,47 @@
     let selectedInvestigations = [];
 
     function fetchInvestigations(keyword = '') {
-        $.get('/investigations/search', { keyword }, function (data) {
-            let options = '<option value="">Select an investigation</option>';
-            data.forEach(inv => {
-                options += `<option value="${inv.invId}" 
-                                data-name="${inv.invName}" 
-                                data-charges="${inv.invCharge}"
-                                data-room="${inv.invRoom}"
-                                data-cat="${inv.invCat}"
-                                data-doc="${inv.invDoc}">
-                                ${inv.invName}
-                            </option>`;
-            });
+        const labId = $('#labSelect').val();
+
+        $.get('/investigations/search', { keyword, labId }, function (data) {
+            let options = '';
+
+            if (keyword.trim() === '') {
+                options += `<option value="">Select an investigation</option>`;
+            }
+
+            if (data.length > 0) {
+                data.forEach(inv => {
+                    options += `<option value="${inv.invId}" 
+                        data-name="${inv.invName}" 
+                        data-charges="${inv.charges}" 
+                        data-room="${inv.invRoom}" 
+                        data-cat="${inv.invCat}" 
+                        data-doc="${inv.invDoc}">
+                        ${inv.invName} (${inv.invCat})
+                    </option>`;
+                });
+            } else if (keyword.trim() !== '') {
+                options = `<option value="">No investigations found</option>`;
+            }
+
             $('#invSelect').html(options);
+
+            // Auto-select first real match if keyword was entered and results are available
+            if (keyword.trim() !== '' && data.length > 0) {
+                $('#invSelect option:first').prop('selected', true);
+            }
         });
     }
 
-    fetchInvestigations();
 
+    fetchInvestigations('');
+
+    $('#invSearchInput').on('input', function () {
+        const keyword = $(this).val();
+        fetchInvestigations(keyword);
+    });
+    
     $('#searchInvBtn').on('click', function () {
         const keyword = $('#invSearchInput').val();
         fetchInvestigations(keyword);
@@ -234,7 +257,7 @@
 
     $('#addInvestigation').on('click', function () {
         const selectedOption = $('#invSelect option:selected');
-        const invId = selectedOption.val();
+        const invId = String(selectedOption.val()); // Cast to string
         const invName = selectedOption.data('name');
         const charges = selectedOption.data('charges');
         const invRoom = selectedOption.data('room');
@@ -248,18 +271,24 @@
                 <tr data-id="${invId}">
                     <td>${invName}</td>
                     <td>${charges}</td>
-                    <td><button class="btn btn-danger btn-sm removeBtn">Remove</button></td>
+                    <td><button type="button" class="btn btn-danger btn-sm removeBtn">Remove</button></td>
                 </tr>
             `);
         }
     });
 
+
     $('#investigationTable').on('click', '.removeBtn', function () {
         const row = $(this).closest('tr');
-        const invId = row.data('id');
+        const invId = String(row.data('id'));
         selectedInvestigations = selectedInvestigations.filter(i => i.invId !== invId);
         row.remove();
+
+        // Re-enable the option in the dropdown
+        $(`#invSelect option[value="${invId}"]`).prop('disabled', false);
     });
+
+
 
     $('#saveBtn').on('click', function () {
         const pid = $('#patientSelect').val();
