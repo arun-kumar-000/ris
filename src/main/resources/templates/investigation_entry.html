@@ -1,13 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+       <meta charset="UTF-8">
     <title>Investigation Entry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Argon Dashboard CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fe;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .card-header {
+            background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
+            color: white;
+            border-radius: .5rem .5rem 0 0;
+        }
+        .form-section {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: #5e72e4;
+            border-color: #5e72e4;
+        }
+        .btn-primary:hover {
+            background-color: #324cdd;
+            border-color: #324cdd;
+        }
+        .table th {
+            background-color: #f6f9fc;
+            color: #5e72e4;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f0f2f5;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
-    <h2 class="mb-4">Investigation Entry</h2>
-
+<div class="card shadow-sm border-0">
+     <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="mb-0"><i class="fas fa-users me-2"></i>Investigation Entry</h2>
+        </div>
     <!-- Patient Search -->
     <div class="mb-3">
         <input type="text" id="searchInput" class="form-control" placeholder="Search Patient (Name, Aadhaar, Mobile, PID)">
@@ -40,17 +85,16 @@
         </div>
         <div class="col-md-6 mb-3">
             <label>Age</label>
-            <input type="text" class="form-control" id="age" readonly placeholder="e.g., 1Y2M3D">
+            <input type="text" class="form-control" id="age" readonly>
         </div>
+           <div class="col-md-6 mb-3">
+            <label>Insurance</label>
+            <input type="text" class="form-control" id="ins" readonly>
+        </div>
+        <input type="hidden" id="dob">
     </div>
 
     <hr>
-
-    <!-- Doctor Name -->
-    <div class="mb-3">
-        <label>Doctor Name</label>
-        <input type="text" id="doctorName" class="form-control" placeholder="Enter Doctor Name">
-    </div>
 
     <!-- Payment Mode -->
     <div class="mb-3">
@@ -92,6 +136,7 @@
 
     <button class="btn btn-success" id="saveBtn">Save Entry</button>
 </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -101,7 +146,14 @@
         $.get('/investigations/search', { keyword }, function (data) {
             let options = '<option value="">Select an investigation</option>';
             data.forEach(inv => {
-                options += `<option value="${inv.invId}" data-name="${inv.invName}" data-charges="${inv.invCharge}">${inv.invName}</option>`;
+                options += `<option value="${inv.invId}" 
+                                data-name="${inv.invName}" 
+                                data-charges="${inv.invCharge}"
+                                data-room="${inv.invRoom}"
+                                data-cat="${inv.invCat}"
+                                data-doc="${inv.invDoc}">
+                                ${inv.invName}
+                            </option>`;
             });
             $('#invSelect').html(options);
         });
@@ -137,8 +189,7 @@
                 $('#city').val(data.city);
                 $('#sex').val(data.sex);
                 $('#dob').val(data.dob);
-
-                // Calculate age
+                $('#ins').val(data.insurance);
                 const ageStr = calculateAge(data.dob);
                 $('#age').val(ageStr);
             });
@@ -171,9 +222,12 @@
         const invId = selectedOption.val();
         const invName = selectedOption.data('name');
         const charges = selectedOption.data('charges');
+        const invRoom = selectedOption.data('room');
+        const invCat = selectedOption.data('cat');
+        const invDoc = selectedOption.data('doc');
 
         if (invId && !selectedInvestigations.some(i => i.invId === invId)) {
-            selectedInvestigations.push({ invId, invName, charges });
+            selectedInvestigations.push({ invId, invName, charges, invRoom, invCat, invDoc });
 
             $('#investigationTable tbody').append(`
                 <tr data-id="${invId}">
@@ -194,24 +248,24 @@
 
     $('#saveBtn').on('click', function () {
         const pid = $('#patientSelect').val();
-        const doctorName = $('#doctorName').val();
         const pname = $('#pName').val();
         const dob = $('#dob').val();
         const age = $('#age').val();
+        const ins = $('#ins').val();
         const paymentMode = $('#paymentMode').val();
 
-        if (!pid || !doctorName || selectedInvestigations.length === 0 || !paymentMode) {
-            alert("Please select patient, doctor name, payment mode, and investigations.");
+        if (!pid || selectedInvestigations.length === 0 || !paymentMode) {
+            alert("Please select patient, payment mode, and at least one investigation.");
             return;
         }
 
         const payload = {
             pid: pid,
             pname: pname,
-            doctorName: doctorName,
             dob: dob,
             age: age,
             paymentMode: paymentMode,
+            ins: ins,
             investigations: selectedInvestigations
         };
 

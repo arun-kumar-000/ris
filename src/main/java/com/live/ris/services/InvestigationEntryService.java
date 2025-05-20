@@ -7,6 +7,7 @@ import com.live.ris.entities.InvestigationBillEntry;
 import com.live.ris.entities.InvestigationEntry;
 import com.live.ris.repositories.InvestigationBillEntryRepository;
 import com.live.ris.repositories.InvestigationEntryRepository;
+import com.live.ris.repositories.InvestigationMasterRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -22,6 +23,9 @@ public class InvestigationEntryService {
     
     @Autowired
     private InvestigationBillEntryRepository billRepo;
+    
+    @Autowired
+    private InvestigationMasterRepository invMstRepo;
 
     @Autowired
     private InvestigationEntryRepository entryRepo;
@@ -47,7 +51,7 @@ public class InvestigationEntryService {
         InvestigationBillEntry bill = new InvestigationBillEntry();
         bill.setpId(request.getPid());
         bill.setpName(request.getPname());
-        bill.setRefDoctor(request.getDoctorName());
+        bill.setRefDoctor(request.getInvDoc());
         bill.setInvTotalCharges(
                 request.getInvestigations().stream()
                         .mapToDouble(i -> Double.parseDouble(i.getCharges()))
@@ -57,11 +61,14 @@ public class InvestigationEntryService {
         bill.setInvBookingStatus("Pending");
         bill.setpAge(request.getAge());
         bill.setpType("OPD");
+        bill.setInvPaymentMode(request.getPaymentMode());
+        bill.setRefDoctor("NA");
+        bill.setpInsurance(request.getIns());
         bill.setInvEntryUser("system");
 
         billRepo.save(bill);
 
-        String receiptIdStr = bill.getInvReceiptId();
+        String receiptIdStr = bill.getInvReceiptId()+"";
         bill.setInvReceiptIdStr(receiptIdStr);
         billRepo.save(bill);
 
@@ -71,14 +78,18 @@ public class InvestigationEntryService {
             entry.setInvCode(item.getInvId());
             entry.setpId(request.getPid());
             entry.setpName(request.getPname());
-            entry.setInvDoctor(request.getDoctorName());
+            entry.setInvDoctor(item.getInvDoc());
             entry.setInvCharges(item.getCharges());
+            entry.setInvCat(item.getInvCat());
+            entry.setInvRoom(item.getInvRoom());
+            entry.setInvOperator(item.getInvDoc());
             entry.setInvReceiptId(receiptIdStr);
+            entry.setInvPerformed("NO");
+            entry.setInvDocUploaded("NO");
             entry.setInvDateTime(new Timestamp(System.currentTimeMillis()));
 
             entryRepo.save(entry);
         }
-
         return receiptIdStr;
     }
 }
