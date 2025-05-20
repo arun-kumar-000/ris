@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-       <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <title>Investigation Entry</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Argon Dashboard CSS -->
+    <!-- Bootstrap 5 & Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
     <style>
         body {
             background-color: #f8f9fe;
@@ -17,13 +18,6 @@
             background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
             color: white;
             border-radius: .5rem .5rem 0 0;
-        }
-        .form-section {
-            background: #ffffff;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
         }
         .form-label {
             font-weight: 500;
@@ -49,95 +43,116 @@
 </head>
 <body>
 <div class="container mt-5">
-<div class="card shadow-sm border-0">
-     <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="mb-0"><i class="fas fa-users me-2"></i>Investigation Entry</h2>
         </div>
-    <!-- Patient Search -->
-    <div class="mb-3">
-        <input type="text" id="searchInput" class="form-control" placeholder="Search Patient (Name, Aadhaar, Mobile, PID)">
-        <select id="patientSelect" class="form-select mt-2">
-            <option value="">Select a patient</option>
-        </select>
+
+        <div class="card-body">
+
+            <!-- Patient Search -->
+            <div class="row g-2 mb-3">
+                <div class="col-12 col-md-8">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search Patient (Name, Aadhaar, Mobile, PID)">
+                </div>
+                <div class="col-12 col-md-4">
+                    <select id="patientSelect" class="form-select">
+                        <option value="">Select a patient</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Patient Details -->
+            <div class="row" id="patientDetails">
+                <div class="col-md-6 mb-3">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="pName" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Mobile</label>
+                    <input type="text" class="form-control" id="telephone" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Aadhaar</label>
+                    <input type="text" class="form-control" id="aadhaar" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>City</label>
+                    <input type="text" class="form-control" id="city" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Sex</label>
+                    <input type="text" class="form-control" id="sex" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Age</label>
+                    <input type="text" class="form-control" id="age" readonly>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Insurance</label>
+                    <input type="text" class="form-control" id="ins" readonly>
+                </div>
+                <input type="hidden" id="dob">
+            </div>
+
+            <hr>
+
+            <!-- Payment Mode -->
+            <div class="mb-3">
+                <label>Payment Mode</label>
+                <select id="paymentMode" class="form-select">
+                    <option value="">Select Payment Mode</option>
+                    <option value="CASH">CASH</option>
+                    <option value="ONLINE">ONLINE</option>
+                </select>
+            </div>
+
+            <!-- Investigation Search -->
+            <div class="row g-2 mb-3">
+                <div class="col-12 col-md-9">
+                    <input type="text" id="invSearchInput" class="form-control" placeholder="Search Investigations">
+                </div>
+                <div class="col-12 col-md-3">
+                    <button type="button" class="btn btn-secondary w-100" id="searchInvBtn">Search</button>
+                </div>
+            </div>
+
+            <!-- Investigation Dropdown and Add Button -->
+            <div class="row g-2 mb-3">
+                <div class="col-12 col-md-9">
+                    <select id="invSelect" class="form-select">
+                        <option value="">Select an investigation</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <button type="button" class="btn btn-primary w-100" id="addInvestigation">Add Investigation</button>
+                </div>
+            </div>
+
+            <!-- Investigation Table -->
+            <div class="table-responsive mb-3">
+                <table class="table table-bordered" id="investigationTable">
+                    <thead>
+                    <tr>
+                        <th>Investigation Name</th>
+                        <th>Charges</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Save Button -->
+            <div class="mb-3">
+                <button class="btn btn-success w-100" id="saveBtn">Save Entry</button>
+            </div>
+
+        </div>
     </div>
-
-    <!-- Patient Details -->
-    <div class="row" id="patientDetails">
-        <div class="col-md-6 mb-3">
-            <label>Name</label>
-            <input type="text" class="form-control" id="pName" readonly>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label>Mobile</label>
-            <input type="text" class="form-control" id="telephone" readonly>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label>Aadhaar</label>
-            <input type="text" class="form-control" id="aadhaar" readonly>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label>City</label>
-            <input type="text" class="form-control" id="city" readonly>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label>Sex</label>
-            <input type="text" class="form-control" id="sex" readonly>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label>Age</label>
-            <input type="text" class="form-control" id="age" readonly>
-        </div>
-           <div class="col-md-6 mb-3">
-            <label>Insurance</label>
-            <input type="text" class="form-control" id="ins" readonly>
-        </div>
-        <input type="hidden" id="dob">
-    </div>
-
-    <hr>
-
-    <!-- Payment Mode -->
-    <div class="mb-3">
-        <label>Payment Mode</label>
-        <select id="paymentMode" class="form-select">
-            <option value="">Select Payment Mode</option>
-            <option value="CASH">CASH</option>
-            <option value="ONLINE">ONLINE</option>
-        </select>
-    </div>
-
-    <!-- Investigation Search -->
-    <div class="mb-3">
-        <div class="input-group">
-            <input type="text" id="invSearchInput" class="form-control" placeholder="Search Investigations">
-            <button type="button" class="btn btn-secondary" id="searchInvBtn">Search</button>
-        </div>
-    </div>
-
-    <!-- Investigation Dropdown -->
-    <div class="mb-3">
-        <select id="invSelect" class="form-select">
-            <option value="">Select an investigation</option>
-        </select>
-        <button type="button" class="btn btn-primary mt-2" id="addInvestigation">Add Investigation</button>
-    </div>
-
-    <!-- Investigation Table -->
-    <table class="table table-bordered" id="investigationTable">
-        <thead>
-        <tr>
-            <th>Investigation Name</th>
-            <th>Charges</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-    <button class="btn btn-success" id="saveBtn">Save Entry</button>
 </div>
-</div>
 
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     let selectedInvestigations = [];
