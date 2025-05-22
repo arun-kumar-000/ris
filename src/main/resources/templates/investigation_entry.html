@@ -171,7 +171,7 @@
                 data.forEach(inv => {
                     options += `<option value="${inv.invId}" 
                         data-name="${inv.invName}" 
-                        data-charges="${inv.charges}" 
+                        data-charges="${inv.invCharge}" 
                         data-room="${inv.invRoom}" 
                         data-cat="${inv.invCat}" 
                         data-doc="${inv.invDoc}">
@@ -251,7 +251,6 @@
             years--;
             months += 12;
         }
-
         return `${years}Y${months}M${days}D`;
     }
 
