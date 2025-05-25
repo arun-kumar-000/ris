@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/files")
-@CrossOrigin(origins = "*")  // ✅ Allow CORS from any frontend origin
 public class FileController {
 
     private final Path root = Paths.get("reports");

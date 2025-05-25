@@ -33,7 +33,7 @@
 <div id="editor"></div>
 
 <script>
-    const fileListUrl = "http://localhost:8081/files/list";
+    const fileListUrl = "http://localhost:8080/files/list";
 
     // Fetch file list and populate dropdown
     fetch(fileListUrl)
@@ -61,7 +61,7 @@
     function loadSelectedFile() {
         const selectedFile = document.getElementById("fileList").value;
         if (selectedFile) {
-            window.location.href = `editor.html?file=${encodeURIComponent(selectedFile)}`;
+            window.location.href = `report_editor.html?file=${encodeURIComponent(selectedFile)}`;
         }
     }
 
@@ -77,13 +77,13 @@
             documentType: "word",
             document: {
                 title: fileName,
-                url: "http://host.docker.internal:8081/files/" + fileName,
+                url: "http://host.docker.internal:8080/files/" + fileName,
                 fileType: fileType,
                 key: fileKey
             },
             editorConfig: {
                 mode: "edit",
-                callbackUrl: "http://host.docker.internal:8081/files/save-callback",
+                callbackUrl: "http://host.docker.internal:8080/files/save-callback",
                 permissions: {
                     edit: true,
                     download: true,

@@ -100,4 +100,17 @@ public class PatientController {
         Patient patient = patientService.getPatientById(pid);
         return patient != null ? ResponseEntity.ok(patient) : ResponseEntity.notFound().build();
     }
+    
+    @GetMapping("/reports_gen")
+    public String showReportForm() {
+        return "report_generate";
+    }
+    
+    @GetMapping("/reports/generate")
+    public String generateReport(@RequestParam("pid") Long pid, Model model) {
+        Patient patient = patientService.getPatientById(pid);
+        model.addAttribute("patient", patient);
+        return "report_editor"; // Thymeleaf template to show report generation form
+    }
+
 }

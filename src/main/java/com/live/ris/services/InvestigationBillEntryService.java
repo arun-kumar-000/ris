@@ -29,4 +29,6 @@ public class InvestigationBillEntryService {
     public void delete(int id) {
         repository.deleteById(id);
     }
+    
+    
 }

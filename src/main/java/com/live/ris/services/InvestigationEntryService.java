@@ -46,6 +46,23 @@ public class InvestigationEntryService {
         repository.deleteById(id);
     }
 
+
+    public List<InvestigationEntry> getTodayEntries(String keyword) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return repository.searchToday(keyword);
+        } else {
+            return repository.findTodayEntries();
+        }
+    }
+
+    public void cancelEntry(int receiptId) {
+        InvestigationEntry entry = repository.findById(receiptId)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+        entry.setInvPerformed("cancel");
+        repository.save(entry);
+    }
+    
+    
     @Transactional
     public String saveInvestigationWithBilling(InvestigationEntryRequest request) {
         InvestigationBillEntry bill = new InvestigationBillEntry();
