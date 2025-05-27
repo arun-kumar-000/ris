@@ -12,7 +12,7 @@ import com.live.ris.entities.InvestigationEntry;
 public interface InvestigationEntryRepository extends JpaRepository<InvestigationEntry, Integer> {
 	 @Query("SELECT e FROM InvestigationEntry e WHERE " +
 	           "(e.pName LIKE %:keyword% OR e.pId LIKE %:keyword% OR e.invReceiptId LIKE %:keyword%) " +
-	           "AND DATE(e.invDateTime) = CURRENT_DATE")
+	           "")
 	    List<InvestigationEntry> searchToday(String keyword);
 
 	    @Query("SELECT e FROM InvestigationEntry e WHERE DATE(e.invDateTime) = CURRENT_DATE")
