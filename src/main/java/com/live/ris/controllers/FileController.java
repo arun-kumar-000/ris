@@ -21,6 +21,20 @@ public class FileController {
 
     private final Path root = Paths.get("reports");
 
+    @GetMapping("/templates")
+    @ResponseBody
+    public List<String> getReportTemplates() {
+        try {
+            Path reportsDir = Paths.get("src/main/java/reports");
+            return Files.list(reportsDir)
+                    .filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<String>> listFiles() {
         try (Stream<Path> files = Files.walk(root, 1)) {

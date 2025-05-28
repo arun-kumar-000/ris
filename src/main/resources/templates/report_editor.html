@@ -1,111 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>OnlyOffice Document Editor</title>
     <script src="http://localhost:8000/web-apps/apps/api/documents/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.23/jsrsasign-all-min.js"></script>
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-        }
-        #toolbar {
-            padding: 10px;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ccc;
-        }
-        #editor {
-            height: calc(100vh - 50px);
-        }
+        html, body { margin: 0; padding: 0; height: 100%; }
+        #editor { height: 100vh; }
     </style>
 </head>
 <body>
 
-<div id="toolbar">
-    <label>Select file: </label>
-    <select id="fileList"></select>
-    <button onclick="loadSelectedFile()">Open</button>
+<!-- Optional: Show patient info -->
+<div style="padding: 10px; background: #f9f9f9;">
+    <strong>Patient:</strong> <span th:text="${patient.pName}"></span>,
+    <strong>Age:</strong> <span th:text="${patient.dob}"></span>,
+    <strong>Gender:</strong> <span th:text="${patient.sex}"></span>
 </div>
 
 <div id="editor"></div>
 
-<script>
-    const fileListUrl = "http://localhost:8080/files/list";
+<script th:inline="javascript">
+    const fileName = /*[[${fileName}]]*/ 'blank.docx';
+    const fileType = fileName.split('.').pop().toLowerCase();
+    const fileKey = btoa(fileName);
+    const secret = "m4y8q9NljJXqWu1VYbG3rD1sHZ0vCkX2FLMfRNQhWSo=";
 
-    // Fetch file list and populate dropdown
-    fetch(fileListUrl)
-        .then(res => res.json())
-        .then(files => {
-            const select = document.getElementById("fileList");
-            files.forEach(file => {
-                const option = document.createElement("option");
-                option.value = file;
-                option.text = file;
-                select.appendChild(option);
-            });
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const fileParam = urlParams.get('file');
-            if (fileParam) {
-                select.value = fileParam;
-                loadDocument(fileParam);
-            } else if (files.length > 0) {
-                loadDocument(files[0]);
+    const config = {
+        width: "100%",
+        height: "100%",
+        documentType: "word",
+        document: {
+            title: fileName,
+            url: "http://host.docker.internal:8080/files/" + fileName,
+            fileType: fileType,
+            key: fileKey
+        },
+        editorConfig: {
+            mode: "edit",
+            callbackUrl: "http://host.docker.internal:8080/files/save-callback",
+            permissions: {
+                edit: true,
+                download: true,
+                print: true,
+                review: true,
+                comment: true,
+                copy: true,
+                fillForms: true,
+                modifyFilter: true,
+                modifyContentControl: true
             }
-        });
-
-    // When "Open" is clicked
-    function loadSelectedFile() {
-        const selectedFile = document.getElementById("fileList").value;
-        if (selectedFile) {
-            window.location.href = `report_editor.html?file=${encodeURIComponent(selectedFile)}`;
         }
-    }
+    };
 
-    // Main function to open document
-    function loadDocument(fileName) {
-        const fileType = fileName.split('.').pop().toLowerCase();
-        const fileKey = btoa(fileName);
-        const secret = "m4y8q9NljJXqWu1VYbG3rD1sHZ0vCkX2FLMfRNQhWSo=";
+    // Sign token
+    const header = { alg: "HS256", typ: "JWT" };
+    const token = KJUR.jws.JWS.sign(null, JSON.stringify(header), JSON.stringify(config), secret);
+    config.token = token;
 
-        const config = {
-            width: "100%",
-            height: "100%",
-            documentType: "word",
-            document: {
-                title: fileName,
-                url: "http://host.docker.internal:8080/files/" + fileName,
-                fileType: fileType,
-                key: fileKey
-            },
-            editorConfig: {
-                mode: "edit",
-                callbackUrl: "http://host.docker.internal:8080/files/save-callback",
-                permissions: {
-                    edit: true,
-                    download: true,
-                    print: true,
-                    review: true,
-                    comment: true,
-                    copy: true,
-                    fillForms: true,
-                    modifyFilter: true,
-                    modifyContentControl: true
-                }
-            }
-        };
-
-        // Sign the token
-        const header = { alg: "HS256", typ: "JWT" };
-        const token = KJUR.jws.JWS.sign(null, JSON.stringify(header), JSON.stringify(config), secret);
-        config.token = token;
-
-        // Initialize the editor
-        const docEditor = new DocsAPI.DocEditor("editor", config);
-    }
+    // Launch editor
+    const docEditor = new DocsAPI.DocEditor("editor", config);
 </script>
 
 </body>

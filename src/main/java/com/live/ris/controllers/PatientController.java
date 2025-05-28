@@ -107,10 +107,19 @@ public class PatientController {
     }
     
     @GetMapping("/reports/generate")
-    public String generateReport(@RequestParam("pid") Long pid, Model model) {
-        Patient patient = patientService.getPatientById(pid);
-        model.addAttribute("patient", patient);
-        return "report_editor"; // Thymeleaf template to show report generation form
+    public String generateReportEditor(@RequestParam String fileName, @RequestParam Long pid, Model model) {
+        // Logic to load file for editing
+    	   Patient patient = patientService.getPatientById(pid);
+         model.addAttribute("patient", patient);
+        model.addAttribute("fileName", fileName);
+        return "report_editor"; // your editor.html Thymeleaf page
     }
+
+//    @GetMapping("/reports/generate")
+//    public String generateReport(@RequestParam("pid") Long pid, Model model) {
+//        Patient patient = patientService.getPatientById(pid);
+//        model.addAttribute("patient", patient);
+//        return "report_editor"; // Thymeleaf template to show report generation form
+//    }
 
 }
