@@ -19,28 +19,16 @@ import java.util.stream.Stream;
 @RequestMapping("/files")
 public class FileController {
 
-    private final Path root = Paths.get("reports");
+    private final Path templatesPath = Paths.get("reports");
+    private final Path reportResultPath = Paths.get("results");
 
-    @GetMapping("/templates")
-    @ResponseBody
-    public List<String> getReportTemplates() {
-        try {
-            Path reportsDir = Paths.get("src/main/java/reports");
-            return Files.list(reportsDir)
-                    .filter(Files::isRegularFile)
-                    .map(path -> path.getFileName().toString())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            return List.of();
-        }
-    }
 
     @GetMapping("/list")
     public ResponseEntity<List<String>> listFiles() {
-        try (Stream<Path> files = Files.walk(root, 1)) {
+        try (Stream<Path> files = Files.walk(templatesPath, 1)) {
             List<String> fileList = files
                     .filter(path -> !Files.isDirectory(path))
-                    .map(root::relativize)
+                    .map(templatesPath::relativize)
                     .map(Path::toString)
                     .filter(name -> name.toLowerCase().endsWith(".doc") || name.toLowerCase().endsWith(".docx"))
                     .collect(Collectors.toList());
@@ -54,22 +42,22 @@ public class FileController {
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {
             // Prevent path traversal attack
-            Path resolvedPath = root.resolve(filename).normalize();
-            if (!resolvedPath.startsWith(root)) {
+            Path resolvedPath = templatesPath.resolve(filename).normalize();
+            if (!resolvedPath.startsWith(templatesPath)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
-            // If blank.docx, copy from classpath if not exists
-            if ("blank.docx".equalsIgnoreCase(filename)) {
-                Path blankPath = root.resolve("blank.docx");
-                if (!Files.exists(blankPath)) {
-                    Files.createDirectories(root);
-                    Resource template = new ClassPathResource("templates/blank.docx");
-                    try (InputStream in = template.getInputStream()) {
-                        Files.copy(in, blankPath, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                }
-            }
+//            // If blank.docx, copy from classpath if not exists
+//            if ("blank.docx".equalsIgnoreCase(filename)) {
+//                Path blankPath = templatesPath.resolve("blank.docx");
+//                if (!Files.exists(blankPath)) {
+//                    Files.createDirectories(templatesPath);
+//                    Resource template = new ClassPathResource("templates/blank.docx");
+//                    try (InputStream in = template.getInputStream()) {
+//                        Files.copy(in, blankPath, StandardCopyOption.REPLACE_EXISTING);
+//                    }
+//                }
+//            }
 
             Resource resource = new UrlResource(resolvedPath.toUri());
             if (resource.exists() && resource.isReadable()) {
@@ -96,9 +84,9 @@ public class FileController {
 
                 // Decode base64 file name safely
                 String fileName = new String(Base64.getDecoder().decode(key), StandardCharsets.UTF_8);
-                Path savePath = root.resolve(fileName).normalize();
+                Path savePath = reportResultPath.resolve(fileName).normalize();
 
-                if (!savePath.startsWith(root)) {
+                if (!savePath.startsWith(reportResultPath)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
 
@@ -114,7 +102,7 @@ public class FileController {
         } catch (Exception e) {
             e.printStackTrace();
             Map<String, Object> response = new HashMap<>();
-            response.put("error", 1);
+            response.put("error", 1); 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
