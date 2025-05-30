@@ -12,34 +12,29 @@
 </head>
 <body>
 
+<!-- Optional header with patient details -->
 <div style="padding: 10px; background: #f9f9f9;">
     <strong>Patient:</strong> <span th:text="${patient.pName}"></span>,
     <strong>Age:</strong> <span th:text="${patient.dob}"></span>,
     <strong>Gender:</strong> <span th:text="${patient.sex}"></span>
 </div>
 
+<!-- OnlyOffice editor container -->
 <div id="editor"></div>
 
 <script th:inline="javascript">
     const fileName = /*[[${fileName}]]*/ 'blank.docx';
     const fileType = fileName.split('.').pop().toLowerCase();
-    const fileKey = btoa(fileName);
+    const fileKey = btoa(fileName);  // base64 key
     const secret = "m4y8q9NljJXqWu1VYbG3rD1sHZ0vCkX2FLMfRNQhWSo=";
 
     function getDockerHost() {
         const userAgent = navigator.userAgent.toLowerCase();
-
-        if (userAgent.indexOf('win') !== -1) {
-            // Windows
-            return 'host.docker.internal';
-        } else if (userAgent.indexOf('mac') !== -1) {
-            // macOS
+        if (userAgent.indexOf('win') !== -1 || userAgent.indexOf('mac') !== -1) {
             return 'host.docker.internal';
         } else if (userAgent.indexOf('linux') !== -1) {
-            // Linux
             return '172.17.0.1';
         } else {
-            // fallback to localhost
             return 'localhost';
         }
     }
@@ -60,6 +55,14 @@
         editorConfig: {
             mode: "edit",
             callbackUrl: baseUrl + "/files/save-callback",
+            user: {
+                id: "1",
+                name: "Doctor"
+            },
+            customization: {
+                forcesave: true,  // enable Ctrl+S save
+                toolbarNoTabs: false
+            },
             permissions: {
                 edit: true,
                 download: true,
@@ -74,13 +77,19 @@
         }
     };
 
-    // Sign token
+    // JWT token signing
     const header = { alg: "HS256", typ: "JWT" };
     const token = KJUR.jws.JWS.sign(null, JSON.stringify(header), JSON.stringify(config), secret);
     config.token = token;
 
-    // Launch editor
+    // Launch OnlyOffice editor
     const docEditor = new DocsAPI.DocEditor("editor", config);
+
+    // Optional: Handle manual Ctrl+S / Save button
+    docEditor.events.onRequestSave = function () {
+        console.log("Manual save requested (Ctrl+S or Save button)");
+        docEditor.save(); // Triggers callbackUrl POST
+    };
 </script>
 
 </body>

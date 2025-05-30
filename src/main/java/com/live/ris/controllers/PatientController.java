@@ -1,13 +1,24 @@
 package com.live.ris.controllers;
 
 import com.live.ris.entities.Patient;
+import com.live.ris.services.DocServices;
 import com.live.ris.services.PatientService;
+
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +31,9 @@ public class PatientController {
 
     @Autowired
     private PatientService patientService;
+    
+    @Autowired
+    private DocServices docServices;
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
@@ -108,12 +122,47 @@ public class PatientController {
     
     @GetMapping("/reports/generate")
     public String generateReportEditor(@RequestParam String fileName, @RequestParam Long pid, Model model) {
-        // Logic to load file for editing
-    	   Patient patient = patientService.getPatientById(pid);
-         model.addAttribute("patient", patient);
-        model.addAttribute("fileName", fileName);
-        return "report_editor"; // your editor.html Thymeleaf page
+        Patient patient = patientService.getPatientById(pid);
+
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("p_id", String.valueOf(patient.getPid()));
+        replacements.put("p_name", patient.getPName());
+        replacements.put("age_sex", String.valueOf(patient.getDob())+"/"+patient.getSex());
+        replacements.put("doctor_ref", "demo");
+        replacements.put("test_date", "2025-02-01");
+
+        String templatePath = "reports/" + fileName;
+        String outputPath = "results/" + "filled_" + fileName;
+        docServices.generateReportFromTemplate(templatePath, outputPath, replacements);
+
+        model.addAttribute("fileName", "filled_" + fileName);
+        model.addAttribute("patient", patient);
+        return "report_editor";
     }
+
+//    @GetMapping("/reports/generate")
+//    public String generateReportEditor(@RequestParam String fileName, @RequestParam Long pid, Model model) throws IOException {
+//        Patient patient = patientService.getPatientById(pid);
+//        model.addAttribute("patient", patient);
+//
+//        // Path to template and output files
+//        String templatePath = "reports/" + fileName;
+//        String outputPath = "results/" + fileName;
+//
+//        // Replace placeholders
+//        Map<String, String> replacements = new HashMap<>();
+//        replacements.put("p_name", patient.getPName());
+//        replacements.put("age_sex", String.valueOf(patient.getDob())+"/"+patient.getSex());
+//        replacements.put("doctor_ref", "demo");
+//        replacements.put("test_date", "2025-02-01");
+//
+//        docServices.replacePlaceholders(templatePath, outputPath, replacements);
+//
+//        model.addAttribute("fileName", fileName);
+//        return "report_editor";
+//    }
+   
+
 
 //    @GetMapping("/reports/generate")
 //    public String generateReport(@RequestParam("pid") Long pid, Model model) {

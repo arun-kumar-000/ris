@@ -42,8 +42,8 @@ public class FileController {
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {
             // Prevent path traversal attack
-            Path resolvedPath = templatesPath.resolve(filename).normalize();
-            if (!resolvedPath.startsWith(templatesPath)) {
+            Path resolvedPath = reportResultPath.resolve(filename).normalize();
+            if (!resolvedPath.startsWith(reportResultPath)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
@@ -78,32 +78,45 @@ public class FileController {
     public ResponseEntity<Map<String, Object>> handleSaveCallback(@RequestBody Map<String, Object> body) {
         try {
             int status = (int) body.getOrDefault("status", -1);
-            if (status == 2 || status == 3) {
+            System.out.println("📝 Received callback with status: " + status);
+
+            // Only save if changes are saved or Ctrl+S was triggered
+            if (status == 2 || status == 3 || status == 6) {
                 String fileUrl = (String) body.get("url");
                 String key = (String) body.get("key");
 
-                // Decode base64 file name safely
+                // Decode the file name safely from base64
                 String fileName = new String(Base64.getDecoder().decode(key), StandardCharsets.UTF_8);
                 Path savePath = reportResultPath.resolve(fileName).normalize();
 
+                // Prevent directory traversal
                 if (!savePath.startsWith(reportResultPath)) {
+                    System.err.println("🚫 Invalid save path attempt!");
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
 
+                // Download and save the updated file
                 try (InputStream in = new URL(fileUrl).openStream()) {
                     Files.copy(in, savePath, StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("✅ File saved successfully: " + savePath);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                    System.err.println("❌ Error saving file.");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                         .body(Map.of("error", 1));
                 }
+            } else {
+                System.out.println("ℹ️ Status does not require saving (status=" + status + ")");
             }
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", 0);
-            return ResponseEntity.ok(response);
+            // Respond with success
+            return ResponseEntity.ok(Map.of("error", 0));
 
         } catch (Exception e) {
             e.printStackTrace();
-            Map<String, Object> response = new HashMap<>();
-            response.put("error", 1); 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body(Map.of("error", 1));
         }
     }
+
 }
