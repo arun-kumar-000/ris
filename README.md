@@ -29,4 +29,4 @@ Admin modules
 8. analysis
 9. doctor creation and edit
 10. insurance master and edit
-11. 
+11. user master and edit
