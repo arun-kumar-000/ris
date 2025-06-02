@@ -1,7 +1,9 @@
 package com.live.ris.controllers;
 
+import com.live.ris.entities.InvestigationEntry;
 import com.live.ris.entities.Patient;
 import com.live.ris.services.DocServices;
+import com.live.ris.services.InvestigationEntryService;
 import com.live.ris.services.PatientService;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -31,6 +35,9 @@ public class PatientController {
 
     @Autowired
     private PatientService patientService;
+    
+    @Autowired
+    InvestigationEntryService investigationEntryService;
     
     @Autowired
     private DocServices docServices;
@@ -121,54 +128,36 @@ public class PatientController {
     }
     
     @GetMapping("/reports/generate")
-    public String generateReportEditor(@RequestParam String fileName, @RequestParam Long pid, Model model) {
-        Patient patient = patientService.getPatientById(pid);
-
+    public String generateReportEditor(@RequestParam String fileName, @RequestParam int invId, Model model) {
+        // Step 1: Get InvestigationEntry by invId
+        Optional<InvestigationEntry> investigationEntryOpt = investigationEntryService.getById(invId);
+        if (investigationEntryOpt.isEmpty()) {
+            model.addAttribute("error", "Invalid Investigation ID");
+            return "error";
+        }
+        InvestigationEntry investigationEntry = investigationEntryOpt.get();
+        Patient patient = patientService.getPatientById(Long.parseLong(investigationEntry.getpId()));
+        if (patient == null) {
+            model.addAttribute("error", "Patient not found");
+            return "error";
+        }
         Map<String, String> replacements = new HashMap<>();
         replacements.put("p_id", String.valueOf(patient.getPid()));
         replacements.put("p_name", patient.getPName());
-        replacements.put("age_sex", String.valueOf(patient.getDob())+"/"+patient.getSex());
-        replacements.put("doctor_ref", "demo");
-        replacements.put("test_date", "2025-02-01");
+        replacements.put("age_sex", patient.getDob() + "/" + patient.getSex());
+        replacements.put("doctor_ref", investigationEntry.getInvDoctor());
+        replacements.put("test_date", investigationEntry.getInvDateTime()+ ""); // optional
 
         String templatePath = "reports/" + fileName;
-        String outputPath = "results/" + "filled_" + fileName;
+        String outputPath = "results/"+invId+"_"+ fileName;
+        File file=new File(outputPath);
+        if(!file.exists())
         docServices.generateReportFromTemplate(templatePath, outputPath, replacements);
 
-        model.addAttribute("fileName", "filled_" + fileName);
+        model.addAttribute("fileName", invId+"_"+ fileName);
+        
         model.addAttribute("patient", patient);
         return "report_editor";
     }
-
-//    @GetMapping("/reports/generate")
-//    public String generateReportEditor(@RequestParam String fileName, @RequestParam Long pid, Model model) throws IOException {
-//        Patient patient = patientService.getPatientById(pid);
-//        model.addAttribute("patient", patient);
-//
-//        // Path to template and output files
-//        String templatePath = "reports/" + fileName;
-//        String outputPath = "results/" + fileName;
-//
-//        // Replace placeholders
-//        Map<String, String> replacements = new HashMap<>();
-//        replacements.put("p_name", patient.getPName());
-//        replacements.put("age_sex", String.valueOf(patient.getDob())+"/"+patient.getSex());
-//        replacements.put("doctor_ref", "demo");
-//        replacements.put("test_date", "2025-02-01");
-//
-//        docServices.replacePlaceholders(templatePath, outputPath, replacements);
-//
-//        model.addAttribute("fileName", fileName);
-//        return "report_editor";
-//    }
-   
-
-
-//    @GetMapping("/reports/generate")
-//    public String generateReport(@RequestParam("pid") Long pid, Model model) {
-//        Patient patient = patientService.getPatientById(pid);
-//        model.addAttribute("patient", patient);
-//        return "report_editor"; // Thymeleaf template to show report generation form
-//    }
 
 }

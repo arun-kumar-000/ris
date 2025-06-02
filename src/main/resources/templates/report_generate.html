@@ -57,7 +57,7 @@
                         </td>
                         <td>
                             <button class="btn btn-success btn-sm generate-btn" type="button"
-                                     th:attr="data-pid=${entry.pId}">
+                                    th:attr="data-invid=${entry.invId}">
                                 <i class="fas fa-file-medical-alt me-1"></i> Generate Report
                             </button>
                         </td>
@@ -73,37 +73,35 @@
 </div>
 
 <script>
-    // Fetch templates once and populate each select box
-$(document).ready(function () {
-    // Populate all template dropdowns with file list
-    $.get("/files/list", function (data) {
-        $(".template-select").each(function () {
-            var select = $(this);
-            select.empty(); // Optional: clear any existing options
-            select.append('<option value="">Select Template</option>'); // Default option
-            $.each(data, function (index, value) {
-                select.append($("<option></option>").val(value).text(value));
+    $(document).ready(function () {
+        // Populate all template dropdowns with file list
+        $.get("/files/list", function (data) {
+            $(".template-select").each(function () {
+                const select = $(this);
+                select.empty();
+                select.append('<option value="">Select Template</option>');
+                $.each(data, function (index, value) {
+                    select.append($("<option></option>").val(value).text(value));
+                });
             });
         });
+
+        // Handle Generate button click
+        $(".generate-btn").click(function () {
+            const row = $(this).closest("tr");
+            const selectedTemplate = row.find(".template-select").val();
+            const invId = $(this).data("invid");
+
+            if (!selectedTemplate) {
+                alert("Please select a template before generating the report.");
+                return;
+            }
+
+            const url = "/patients/reports/generate?fileName=" + encodeURIComponent(selectedTemplate)
+                + "&invId=" + encodeURIComponent(invId);
+            window.location.href = url;
+        });
     });
-
-    // Handle Generate button click
-    $(".generate-btn").click(function () {
-        const row = $(this).closest("tr");
-        const selectedTemplate = row.find(".template-select").val();
-        const pid = $(this).data("pid");
-
-        if (!selectedTemplate) {
-            alert("Please select a template before generating the report.");
-            return;
-        }
-
-        // Redirect to report generation URL
-        const url = "/patients/reports/generate?fileName=" + encodeURIComponent(selectedTemplate) + "&pid=" + encodeURIComponent(pid);
-        window.location.href = url;
-    });
-});
-
 </script>
 
 </body>

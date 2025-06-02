@@ -28,7 +28,7 @@ public class LoginController {
 		User user = userService.authenticate(userName, pass);
 		if (user != null && user.getRole().equalsIgnoreCase(role)) {
 			model.addAttribute("user", user);
-			return "dashboard";
+			return "dashboard_admin";
 		} else {
 			model.addAttribute("error", "Invalid credentials or role");
 			return "login";
