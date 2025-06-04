@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>OnlyOffice Document Editor</title>
+    <script src="http://localhost:8000/web-apps/apps/api/documents/api.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.5.23/jsrsasign-all-min.js"></script>
+    <style>
+        html, body { margin: 0; padding: 0; height: 100%; }
+        #editor { height: 100vh; }
+    </style>
+</head>
+<body>
+
+<!-- Optional header with patient details -->
+<div style="padding: 10px; background: #f9f9f9;">
+    <strong>Patient:</strong> <span th:text="${patient.pName}"></span>,
+    <strong>Age:</strong> <span th:text="${patient.dob}"></span>,
+    <strong>Gender:</strong> <span th:text="${patient.sex}"></span>
+</div>
+
+<!-- OnlyOffice editor container -->
+<div id="editor"></div>
+
+<script th:inline="javascript">
+    const fileName = /*[[${fileName}]]*/ 'blank.docx';
+    const fileType = fileName.split('.').pop().toLowerCase();
+    const fileKey = btoa(fileName);  // base64 key
+    const secret = "m4y8q9NljJXqWu1VYbG3rD1sHZ0vCkX2FLMfRNQhWSo=";
+
+    function getDockerHost() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf('win') !== -1 || userAgent.indexOf('mac') !== -1) {
+            return 'host.docker.internal';
+        } else if (userAgent.indexOf('linux') !== -1) {
+            return '172.17.0.1';
+        } else {
+            return 'localhost';
+        }
+    }
+
+    const host = getDockerHost();
+    const baseUrl = window.location.protocol + "//" + host + ":8080";
+
+    const config = {
+        width: "100%",
+        height: "100%",
+        documentType: "word",
+        document: {
+            title: fileName,
+            url: baseUrl + "/files/" + fileName,
+            fileType: fileType,
+            key: fileKey
+        },
+        editorConfig: {
+            mode: "edit",
+            callbackUrl: baseUrl + "/files/save-callback",
+            user: {
+                id: "1",
+                name: "Doctor"
+            },
+            customization: {
+                forcesave: true,  // enable Ctrl+S save
+                toolbarNoTabs: false
+            },
+            permissions: {
+                edit: true,
+                download: true,
+                print: true,
+                review: true,
+                comment: true,
+                copy: true,
+                fillForms: true,
+                modifyFilter: true,
+                modifyContentControl: true
+            }
+        }
+    };
+
+    // JWT token signing
+    const header = { alg: "HS256", typ: "JWT" };
+    const token = KJUR.jws.JWS.sign(null, JSON.stringify(header), JSON.stringify(config), secret);
+    config.token = token;
+
+    // Launch OnlyOffice editor
+    const docEditor = new DocsAPI.DocEditor("editor", config);
+
+    // Optional: Handle manual Ctrl+S / Save button
+    docEditor.events.onRequestSave = function () {
+        console.log("Manual save requested (Ctrl+S or Save button)");
+        docEditor.save(); // Triggers callbackUrl POST
+    };
+</script>
+
+</body>
+</html>

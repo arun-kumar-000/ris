@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Template Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fe;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card-header {
+            background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
+            color: white;
+            border-radius: .5rem .5rem 0 0;
+        }
+
+        .table th {
+            background-color: #f6f9fc;
+            color: #5e72e4;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        .btn-primary {
+            background-color: #5e72e4;
+            border-color: #5e72e4;
+        }
+
+        .btn-primary:hover {
+            background-color: #324cdd;
+            border-color: #324cdd;
+        }
+
+        .upload-form {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .upload-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+            <h4 class="mb-2 mb-md-0"><i class="fas fa-file-word me-2"></i>Templates</h4>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/templates/new" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i> New Template
+                </a>
+
+                <form method="post" th:action="@{/templates/upload}" enctype="multipart/form-data" class="upload-form">
+                    <input type="file" name="file" accept=".doc,.docx" class="form-control form-control-sm" required>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-upload me-1"></i> Upload Template
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Template Name</th>
+                        <th>Last Modified</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="template, iterStat : ${templates}">
+                        <td th:text="${iterStat.index + 1}">1</td>
+                        <td th:text="${template.name}">Example.docx</td>
+                        <td th:text="${#temporals.format(template.lastModified, 'dd-MM-yyyy HH:mm')}">12-05-2025</td>
+                        <td>
+                            <a th:href="@{/templates/editor/edit/{name}(name=${template.name})}" class="btn btn-warning btn-sm me-1">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a th:href="@{/templates/delete/{name}(name=${template.name})}" 
+                               onclick="return confirm('Are you sure you want to delete this template?');"
+                               class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(templates)}">
+                        <td colspan="4" class="text-center text-muted">No templates available.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

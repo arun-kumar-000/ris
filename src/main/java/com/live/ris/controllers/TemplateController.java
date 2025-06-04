@@ -1,55 +1,82 @@
 package com.live.ris.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.live.ris.dto.TemplateFile;
 import com.live.ris.services.DocServices;
-
-import ch.qos.logback.core.model.Model;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@RestController
-@RequestMapping("/files")
-public class FileController {
-	
-    private final Path templatesPath = Paths.get("reports");
-    private final Path reportResultPath = Paths.get("results");
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-    @GetMapping("/list")
-    public ResponseEntity<List<String>> listFiles() {
-        try (Stream<Path> files = Files.walk(templatesPath, 1)) {
-            List<String> fileList = files
-                    .filter(path -> !Files.isDirectory(path))
-                    .map(templatesPath::relativize)
-                    .map(Path::toString)
-                    .filter(name -> name.toLowerCase().endsWith(".doc") || name.toLowerCase().endsWith(".docx"))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(fileList);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+@Controller
+@RequestMapping("/templates")
+public class TemplateController {
+
+	private final Path templatesPath = Paths.get("reports");
+    
+    @Autowired
+    private DocServices docServices;
+
+    // Show list of templates
+    @GetMapping
+    public String showTemplateList(Model model) {
+        model.addAttribute("templates", docServices.getAllTemplates());
+        return "template_list";
+    }
+
+    // Upload new template
+    @PostMapping("/upload")
+    public String uploadTemplate(@RequestParam("file") MultipartFile file) throws IOException {
+        docServices.saveTemplate(file);
+        return "redirect:/templates";
+    }
+
+    // Delete template by filename
+    @GetMapping("/delete/{name}")
+    public String deleteTemplate(@PathVariable String name) {
+        docServices.deleteTemplate(name);
+        return "redirect:/templates";
+    }
+
+    @GetMapping("/editor/edit/{name}")
+    public String openEditorPage(@PathVariable String file, Model model) {
+        model.addAttribute("fileName", file); // You may or may not need this
+        return "editor"; // loads editor.html
+    }
+
+
+    // Show template creation page (optional)
+    @GetMapping("/new")
+    public String newTemplate() {
+        return "redirect:/templates/upload"; // you can customize this later
     }
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {
             // Prevent path traversal attack
-            Path resolvedPath = reportResultPath.resolve(filename).normalize();
-            if (!resolvedPath.startsWith(reportResultPath)) {
+            Path resolvedPath = templatesPath.resolve(filename).normalize();
+            if (!resolvedPath.startsWith(templatesPath)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
 
@@ -93,10 +120,10 @@ public class FileController {
 
                 // Decode the file name safely from base64
                 String fileName = new String(Base64.getDecoder().decode(key), StandardCharsets.UTF_8);
-                Path savePath = reportResultPath.resolve(fileName).normalize();
+                Path savePath = templatesPath.resolve(fileName).normalize();
 
                 // Prevent directory traversal
-                if (!savePath.startsWith(reportResultPath)) {
+                if (!savePath.startsWith(templatesPath)) {
                     System.err.println("🚫 Invalid save path attempt!");
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
@@ -124,5 +151,4 @@ public class FileController {
                                  .body(Map.of("error", 1));
         }
     }
-
 }
