@@ -12,7 +12,7 @@ public class UserService {
     private UserRepository userDetailsRepository;
 
     public User authenticate(String userName, String pass) {
-    	User user = userDetailsRepository.findByUserName(userName);
+    	User user = userDetailsRepository.findByUserName(userName).get();
         if (user != null && user.getPass().equals(pass)) {
             return user;
         }
