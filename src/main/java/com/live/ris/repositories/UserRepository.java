@@ -1,9 +1,13 @@
-// 2. Repository Interface
 package com.live.ris.repositories;
 
-import com.live.ris.entities.User;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.live.ris.entities.User;
+
 public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUserName(String userName);
+	Optional<User> findByUserName(String userName);
+    
+    
 }

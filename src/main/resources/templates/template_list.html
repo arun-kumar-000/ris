@@ -60,9 +60,10 @@
             <h4 class="mb-2 mb-md-0"><i class="fas fa-file-word me-2"></i>Templates</h4>
 
             <div class="d-flex flex-wrap gap-2">
-                <a href="/templates/new" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus me-1"></i> New Template
-                </a>
+              <a href="javascript:void(0);" class="btn btn-light btn-sm new-template-btn">
+    <i class="fas fa-plus me-1"></i> New Template
+</a>
+
 
                 <form method="post" th:action="@{/templates/upload}" enctype="multipart/form-data" class="upload-form">
                     <input type="file" name="file" accept=".doc,.docx" class="form-control form-control-sm" required>
@@ -90,10 +91,12 @@
                         <td th:text="${template.name}">Example.docx</td>
                         <td th:text="${#temporals.format(template.lastModified, 'dd-MM-yyyy HH:mm')}">12-05-2025</td>
                         <td>
-                            <a th:href="@{/templates/editor/edit/{name}(name=${template.name})}" class="btn btn-warning btn-sm me-1">
+                            <button type="button" class="btn btn-warning btn-sm me-1 edit-btn"
+                                    th:data-filename="${template.name}">
                                 <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a th:href="@{/templates/delete/{name}(name=${template.name})}" 
+                            </button>
+
+                            <a th:href="@{/templates/delete/{name}(name=${template.name})}"
                                onclick="return confirm('Are you sure you want to delete this template?');"
                                class="btn btn-danger btn-sm">
                                 <i class="fas fa-trash-alt"></i> Delete
@@ -110,7 +113,31 @@
     </div>
 </div>
 
-<!-- Bootstrap Bundle -->
+<!-- Bootstrap & jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Edit Button JS Handler -->
+<script>
+    $(".edit-btn").click(function () {
+        const fileName = $(this).data("filename");
+        const url = "/templates/edit/" + encodeURIComponent(fileName);
+        window.location.href = url;
+    });
+    
+    $(".new-template-btn").click(function () {
+        const enteredName = prompt("Enter template name:");
+
+        if (!enteredName || !enteredName.trim().toLowerCase().endsWith(".docx")) {
+            alert("Please enter a valid .docx filename.");
+            return;
+        }
+
+        const fileName = enteredName.trim();
+        const url = "/templates/new/" + encodeURIComponent(fileName); // triggers backend copy
+        window.location.href = url;
+    });
+</script>
+
 </body>
 </html>

@@ -38,7 +38,15 @@
         <a class="nav-link" href="/inv_entry/list"><i class="fas fa-file-medical-alt me-2"></i> All Exams</a>
         <a class="nav-link" href="/patients/reports_gen"><i class="fas fa-file-medical-alt me-2"></i> Report Generate</a> 
         <a class="nav-link" href="#"><i class="fas fa-cog me-2"></i> Settings</a>
-
+<div class="nav-item">
+            <a class="nav-link" href="#" onclick="toggleSubmenu(event)">
+                <i class="fas fa-folder me-2"></i>Users<i class="fas fa-chevron-down float-end"></i>
+            </a>
+            <div class="nav flex-column ms-3 d-none" id="submenu">
+            <a class="nav-link" href="/users/new"><i class="fas fa-user-plus me-2"></i>User Entry</a>
+	        <a class="nav-link" href="/users"><i class="fas fa-list me-2"></i> Users List</a>
+            </div>
+        </div>
         <!-- New Submenu Item -->
        
     </nav>

@@ -155,7 +155,6 @@ public class PatientController {
         docServices.generateReportFromTemplate(templatePath, outputPath, replacements);
 
         model.addAttribute("fileName", invId+"_"+ fileName);
-        
         model.addAttribute("patient", patient);
         return "report_editor";
     }

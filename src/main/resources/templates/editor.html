@@ -11,14 +11,6 @@
     </style>
 </head>
 <body>
-
-<!-- Optional header with patient details -->
-<div style="padding: 10px; background: #f9f9f9;">
-    <strong>Patient:</strong> <span th:text="${patient.pName}"></span>,
-    <strong>Age:</strong> <span th:text="${patient.dob}"></span>,
-    <strong>Gender:</strong> <span th:text="${patient.sex}"></span>
-</div>
-
 <!-- OnlyOffice editor container -->
 <div id="editor"></div>
 
@@ -48,16 +40,16 @@
         documentType: "word",
         document: {
             title: fileName,
-            url: baseUrl + "/files/" + fileName,
+            url: baseUrl + "/templates/" + fileName,
             fileType: fileType,
             key: fileKey
         },
         editorConfig: {
             mode: "edit",
-            callbackUrl: baseUrl + "/files/save-callback",
+            callbackUrl: baseUrl + "/templates/save-callback",
             user: {
                 id: "1",
-                name: "Doctor"
+                name: "Template"
             },
             customization: {
                 forcesave: true,  // enable Ctrl+S save

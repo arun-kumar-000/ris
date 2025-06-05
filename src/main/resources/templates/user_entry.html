@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create or Edit User</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fe;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .card-header {
+            background: linear-gradient(87deg, #5e72e4 0, #825ee4 100%);
+            color: white;
+            border-radius: .5rem .5rem 0 0;
+        }
+
+        .btn-primary {
+            background-color: #5e72e4;
+            border-color: #5e72e4;
+        }
+
+        .btn-primary:hover {
+            background-color: #324cdd;
+            border-color: #324cdd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header">
+            <h4 class="mb-0">
+                <i class="fas fa-user-plus me-2"></i>
+                <span th:text="${user.id != null} ? 'Edit User' : 'Create New User'">Create New User</span>
+            </h4>
+        </div>
+
+        <div class="card-body">
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        
+            <form th:action="@{/users/save}" th:object="${user}" method="post">
+                <!-- Hidden field to preserve user ID when editing -->
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" th:field="*{fullName}" class="form-control" id="fullName" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="userName" class="form-label">Username</label>
+                        <input type="text" th:field="*{userName}" class="form-control" id="userName" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" th:field="*{email}" class="form-control" id="email">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" th:field="*{phone}" class="form-control" id="phone">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="role" class="form-label">Role</label>
+                        <select th:field="*{role}" class="form-select" id="role" required>
+                            <option value="" disabled>Select Role</option>
+                             <option value="admin">Admin</option>
+                             <option value="doctor">Doctor</option>
+                             <option value="technician">Technician</option>
+                             <option value="receptionist">Receptionist</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="depart" class="form-label">Department</label>
+                        <input type="text" th:field="*{depart}" class="form-control" id="depart">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="pass" class="form-label">Password</label>
+						<input type="password" th:field="*{pass}" class="form-control" id="pass" autocomplete="new-password" 
+						       th:value="*{pass}" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea th:field="*{address}" class="form-control" id="address" rows="2"></textarea>
+                    </div>
+
+                    <div class="col-md-12 text-end">
+                        <a href="/users" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save User
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
