@@ -46,7 +46,7 @@ public class InvestigationMasterController {
                 .distinct()
                 .sorted()
                 .toList());
-        return "investigation_master_form";
+        return "investigation_master_entry";
     }
 
 
@@ -59,7 +59,7 @@ public class InvestigationMasterController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Integer id, Model model) {
         service.getById(id).ifPresent(investigation -> model.addAttribute("investigation", investigation));
-        return "investigation_master_form";
+        return "investigation_master_entry";
     }
 
     @GetMapping("/delete/{id}")

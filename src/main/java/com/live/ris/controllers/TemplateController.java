@@ -70,7 +70,7 @@ public class TemplateController {
 	@GetMapping("/new/{name}")
 	public String newEditorPage(@PathVariable String name, Model model) {
 		try {
-			Path sourceFile = Paths.get("reports/blank.docx");
+			Path sourceFile = Paths.get("src/main/resources/static/blank.docx");
 			Path templatesDir = Paths.get("reports"); // adjust if your folder is different
 			Files.createDirectories(templatesDir);
 			Path targetFile = templatesDir.resolve(name).normalize();

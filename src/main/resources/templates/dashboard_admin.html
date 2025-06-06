@@ -22,33 +22,68 @@
     </div>
     <nav class="nav flex-column">
         <a class="nav-link active" href="#"><i class="fas fa-home me-2"></i> Dashboard</a>
-      <div class="nav-item">
+
+        <!-- Reception Submenu -->
+        <div class="nav-item">
             <a class="nav-link" href="#" onclick="toggleSubmenu(event)">
-                <i class="fas fa-folder me-2"></i>Reception<i class="fas fa-chevron-down float-end"></i>
+                <i class="fas fa-user-nurse me-2"></i>Reception<i class="fas fa-chevron-down float-end"></i>
             </a>
             <div class="nav flex-column ms-3 d-none" id="submenu">
-            <a class="nav-link" href="/patients/register"><i class="fas fa-user-plus me-2"></i> Register Patient</a>
-	        <a class="nav-link" href="/patients/list"><i class="fas fa-list me-2"></i> Patient List</a>
-	        <a class="nav-link" href="/patients/investigation_entry"><i class="fas fa-calendar-alt me-2"></i> Exam Entry</a>
-	        <a class="nav-link" href="/report-editor"><i class="fas fa-file-medical-alt me-2"></i> Reports</a>
+                <a class="nav-link" href="/patients/register"><i class="fas fa-user-plus me-2"></i> Register Patient</a>
+                <a class="nav-link" href="/patients/list"><i class="fas fa-users me-2"></i> Patient List</a>
+                <a class="nav-link" href="/patients/investigation_entry"><i class="fas fa-vials me-2"></i> Exam Entry</a>
+                <a class="nav-link" href="/inv_entry/list"><i class="fas fa-clipboard-list me-2"></i> Exams Entry List</a>
             </div>
         </div>
-        <a class="nav-link" href="/investigations"><i class="fas fa-file-medical-alt me-2"></i> Exam Master</a>
-         <a class="nav-link" href="/templates"><i class="fas fa-file-medical-alt me-2"></i> Templates</a>
-        <a class="nav-link" href="/inv_entry/list"><i class="fas fa-file-medical-alt me-2"></i> All Exams</a>
-        <a class="nav-link" href="/patients/reports_gen"><i class="fas fa-file-medical-alt me-2"></i> Report Generate</a> 
-        <a class="nav-link" href="#"><i class="fas fa-cog me-2"></i> Settings</a>
-<div class="nav-item">
+
+        <!-- Technician Submenu -->
+        <div class="nav-item">
             <a class="nav-link" href="#" onclick="toggleSubmenu(event)">
-                <i class="fas fa-folder me-2"></i>Users<i class="fas fa-chevron-down float-end"></i>
+                <i class="fas fa-microscope me-2"></i>Technician<i class="fas fa-chevron-down float-end"></i>
             </a>
             <div class="nav flex-column ms-3 d-none" id="submenu">
-            <a class="nav-link" href="/users/new"><i class="fas fa-user-plus me-2"></i>User Entry</a>
-	        <a class="nav-link" href="/users"><i class="fas fa-list me-2"></i> Users List</a>
+                <a class="nav-link" href="#"><i class="fas fa-user-cog me-2"></i> gg</a>
+                <a class="nav-link" href="#"><i class="fas fa-tasks me-2"></i> gg</a>
             </div>
         </div>
-        <!-- New Submenu Item -->
-       
+
+        <!-- Investigations Submenu -->
+        <div class="nav-item">
+            <a class="nav-link" href="#" onclick="toggleSubmenu(event)">
+                <i class="fas fa-flask me-2"></i>Investigations<i class="fas fa-chevron-down float-end"></i>
+            </a>
+            <div class="nav flex-column ms-3 d-none" id="submenu">
+                <a class="nav-link" href="/investigations/add"><i class="fas fa-plus-square me-2"></i>New Investigation</a>
+                <a class="nav-link" href="/investigations"><i class="fas fa-list me-2"></i> Investigations List</a>
+            </div>
+        </div>
+
+        <!-- Templates Submenu -->
+        <div class="nav-item">
+            <a class="nav-link" href="#" onclick="toggleSubmenu(event)">
+                <i class="fas fa-file-alt me-2"></i>Templates<i class="fas fa-chevron-down float-end"></i>
+            </a>
+            <div class="nav flex-column ms-3 d-none" id="submenu">
+                <a class="nav-link" href="/templates"><i class="fas fa-file-lines me-2"></i> Templates List</a>
+            </div>
+        </div>
+
+        <!-- Users Submenu -->
+        <div class="nav-item">
+            <a class="nav-link" href="#" onclick="toggleSubmenu(event)">
+                <i class="fas fa-users-cog me-2"></i>Users<i class="fas fa-chevron-down float-end"></i>
+            </a>
+            <div class="nav flex-column ms-3 d-none" id="submenu">
+                <a class="nav-link" href="/users/new"><i class="fas fa-user-plus me-2"></i>User Entry</a>
+                <a class="nav-link" href="/users"><i class="fas fa-user-friends me-2"></i> Users List</a>
+            </div>
+        </div>
+
+        <!-- Report Generate -->
+        <a class="nav-link" href="/inv_entry/reportlist"><i class="fas fa-print me-2"></i> Report Generate</a>
+
+        <!-- Settings -->
+        <a class="nav-link" href="#"><i class="fas fa-cogs me-2"></i> Settings</a>
     </nav>
 </div>
 

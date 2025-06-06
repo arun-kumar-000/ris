@@ -27,6 +27,6 @@ Admin modules
 6. access control
 7. all reports
 8. analysis
-9. doctor creation and edit
+9. Payment Collection
 10. insurance master and edit
 11. user master and edit

@@ -83,15 +83,7 @@ public class PatientController {
 
     @PostMapping("/patients/register")
     public String savePatient(@ModelAttribute("patient") Patient patient) {
-        if (patient.getPid() != null) {
-            Patient existingPatient = patientService.getPatientById(patient.getPid());
-            if (existingPatient != null) {
-                patient.setEntryDatetime(existingPatient.getEntryDatetime());
-            }
-        } else {
-            patient.setEntryDatetime(LocalDateTime.now());
-        }
-
+        patient.setEntryDatetime(LocalDateTime.now());
         patient.setActive(1);
         patientService.savePatient(patient);
         return "redirect:/patients?success=true";
